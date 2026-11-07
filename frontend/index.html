@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgentFlow AI — Intelligent Multi-Agent Workflow Orchestration Platform</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="brand">
+          <div class="brand-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div>
+            <h1 class="brand-title">AgentFlow <span class="brand-highlight">AI</span></h1>
+            <p class="brand-subtitle">Multi-Agent Orchestration & Execution Platform</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-center">
+        <nav class="nav-tabs" id="navTabs">
+          <button class="nav-tab active" data-tab="overview">
+            <span class="tab-icon">📊</span> Overview
+          </button>
+          <button class="nav-tab" data-tab="studio">
+            <span class="tab-icon">🚀</span> Workflow Studio
+          </button>
+          <button class="nav-tab" data-tab="monitor">
+            <span class="tab-icon">⚡</span> Live Monitor
+          </button>
+          <button class="nav-tab" data-tab="agents">
+            <span class="tab-icon">🤖</span> Agents
+          </button>
+          <button class="nav-tab" data-tab="tools">
+            <span class="tab-icon">🛠️</span> Tools & MCP
+          </button>
+          <button class="nav-tab" data-tab="approvals">
+            <span class="tab-icon">🛡️</span> Approvals <span class="badge badge-pill" id="approvalBadge">0</span>
+          </button>
+          <button class="nav-tab" data-tab="history">
+            <span class="tab-icon">📜</span> History & Traces
+          </button>
+        </nav>
+      </div>
+
+      <div class="header-right">
+        <div class="health-indicator" id="systemHealthIndicator">
+          <span class="status-dot healthy"></span>
+          <span class="health-text" id="systemHealthText">System: Operational</span>
+        </div>
+        <div class="provider-pill" id="providerPill" title="Active LLM Backend">
+          <span class="provider-name" id="providerName">Mock LLM</span>
+        </div>
+        <button class="btn btn-secondary btn-icon" id="btnRefreshAll" title="Refresh Data">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 4v6h-6M1 20v-6h6"/>
+            <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <!-- Toast Container -->
+      <div class="toast-container" id="toastContainer"></div>
+
+      <!-- TAB 1: OVERVIEW -->
+      <section class="tab-content active" id="tab-overview">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Platform Overview</h2>
+            <p class="page-desc">System health, active specialized agents, registered tools, and recent execution workflows.</p>
+          </div>
+          <button class="btn btn-primary" onclick="switchTab('studio')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Create Workflow
+          </button>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Total Workflows</span>
+              <span class="metric-icon">📑</span>
+            </div>
+            <div class="metric-value" id="kpiWorkflows">0</div>
+            <div class="metric-sub">Configured pipeline blueprints</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Specialized Agents</span>
+              <span class="metric-icon">🤖</span>
+            </div>
+            <div class="metric-value" id="kpiAgents">5</div>
+            <div class="metric-sub">Planner, Researcher, Analyst, Writer, Reviewer</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Registered Tools</span>
+              <span class="metric-icon">🛠️</span>
+            </div>
+            <div class="metric-value" id="kpiTools">0</div>
+            <div class="metric-sub">Built-in + MCP Adapter tools</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-header">
+              <span class="metric-label">Pending Approvals</span>
+              <span class="metric-icon">🛡️</span>
+            </div>
+            <div class="metric-value" id="kpiApprovals">0</div>
+            <div class="metric-sub">Human-in-the-Loop checkpoints</div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <!-- Recent Workflows -->
+          <div class="card card-span-2">
+            <div class="card-header">
+              <h3 class="card-title">Recent Workflows</h3>
+              <button class="btn btn-link" onclick="switchTab('history')">View all</button>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table" id="recentWorkflowsTable">
+                <thead>
+                  <tr>
+                    <th>Workflow Name</th>
+                    <th>Status</th>
+                    <th>Subtasks</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="recentWorkflowsBody">
+                  <tr><td colspan="5" class="text-center text-muted">Loading workflows...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Quick Launch & Health Diagnostics -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">System Diagnostics</h3>
+            </div>
+            <div class="diagnostic-list" id="diagnosticList">
+              <div class="diagnostic-item">
+                <span class="diag-key">Database Engine</span>
+                <span class="diag-val" id="diagDb">SQLAlchemy 2.0 (SQLite)</span>
+              </div>
+              <div class="diagnostic-item">
+                <span class="diag-key">LLM Backend</span>
+                <span class="diag-val" id="diagLlm">Deterministic Mock Provider</span>
+              </div>
+              <div class="diagnostic-item">
+                <span class="diag-key">Orchestrator Engine</span>
+                <span class="diag-val">LangGraph StateGraph</span>
+              </div>
+              <div class="diagnostic-item">
+                <span class="diag-key">MCP Adapter Layer</span>
+                <span class="diag-val" id="diagMcp">JSON-RPC 2.0 (Connected)</span>
+              </div>
+              <div class="diagnostic-item">
+                <span class="diag-key">Sandbox Mode</span>
+                <span class="diag-val text-success">Safe (Zero eval/exec)</span>
+              </div>
+            </div>
+            <div class="card-footer-box">
+              <h4>Quick Action</h4>
+              <p class="text-muted text-sm">Launch reference Enterprise AI Trends pipeline.</p>
+              <button class="btn btn-secondary btn-block" onclick="launchSampleTask()">🚀 Launch Demo Pipeline</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: WORKFLOW STUDIO -->
+      <section class="tab-content" id="tab-studio">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Workflow Studio</h2>
+            <p class="page-desc">Design, decompose, and configure collaborative multi-agent execution pipelines.</p>
+          </div>
+        </div>
+
+        <div class="grid-2-col">
+          <!-- Creation Form -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Define Workflow Objective</h3>
+            </div>
+            <form id="workflowForm">
+              <div class="form-group">
+                <label for="wfName">Workflow Name</label>
+                <input type="text" id="wfName" class="form-control" placeholder="e.g. Enterprise AI Trends Technical Report" required>
+              </div>
+
+              <div class="form-group">
+                <label for="wfDescription">Description</label>
+                <input type="text" id="wfDescription" class="form-control" placeholder="e.g. Comprehensive research and analysis deliverable">
+              </div>
+
+              <div class="form-group">
+                <label for="wfTask">Complex Objective / Task Prompt</label>
+                <textarea id="wfTask" rows="4" class="form-control" placeholder="Enter high-level user prompt to be decomposed by the Planner Agent..." required></textarea>
+                <div class="sample-pills">
+                  <span class="pill-label">Examples:</span>
+                  <button type="button" class="btn-pill" onclick="fillTask('ai-trends')">Enterprise AI Trends</button>
+                  <button type="button" class="btn-pill" onclick="fillTask('cloud-security')">Cloud Security Audit</button>
+                  <button type="button" class="btn-pill" onclick="fillTask('mcp-strategy')">MCP Integration</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="wfRequireApproval">
+                  <span>Require Human Approval before pipeline execution</span>
+                </label>
+                <p class="text-sm text-muted">When enabled, the orchestrator will pause execution after task decomposition until an administrator approves the plan.</p>
+              </div>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary" id="btnCreateWf">
+                  <span class="btn-text">Generate Plan & Create</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Plan Visualizer & Preview -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Generated Plan & Dependency DAG</h3>
+              <span class="badge" id="planStatusBadge">Awaiting Plan</span>
+            </div>
+            <div class="plan-preview" id="planPreviewContainer">
+              <div class="empty-state">
+                <div class="empty-icon">🗺️</div>
+                <h4>No Plan Selected</h4>
+                <p class="text-muted">Submit an objective on the left to deconstruct it into structured subtasks.</p>
+              </div>
+            </div>
+            <div class="card-actions" id="planActions" style="display: none;">
+              <button class="btn btn-success" id="btnExecutePlan">⚡ Execute Workflow</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: LIVE MONITOR -->
+      <section class="tab-content" id="tab-monitor">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Live Execution Monitor</h2>
+            <p class="page-desc">Track active multi-agent pipeline steps, tool invocations, and live outputs.</p>
+          </div>
+          <div class="monitor-controls">
+            <select class="form-control" id="monitorWorkflowSelect">
+              <option value="">Select an execution run...</option>
+            </select>
+            <button class="btn btn-secondary" id="btnRefreshMonitor">Refresh</button>
+          </div>
+        </div>
+
+        <!-- Pipeline Stepper Tracker -->
+        <div class="card stepper-card">
+          <div class="card-header">
+            <h3 class="card-title">Pipeline Orchestration Stepper</h3>
+            <span class="badge" id="monitorExecutionStatus">IDLE</span>
+          </div>
+          <div class="stepper-container" id="pipelineStepper">
+            <div class="step-node" id="step-planner">
+              <div class="step-circle">1</div>
+              <div class="step-label">Planner</div>
+              <div class="step-sub">Task Decomposition</div>
+            </div>
+            <div class="step-line" id="line-1"></div>
+            <div class="step-node" id="step-researcher">
+              <div class="step-circle">2</div>
+              <div class="step-label">Researcher</div>
+              <div class="step-sub">Doc Search & Evidence</div>
+            </div>
+            <div class="step-line" id="line-2"></div>
+            <div class="step-node" id="step-analyst">
+              <div class="step-circle">3</div>
+              <div class="step-label">Analyst</div>
+              <div class="step-sub">Calculations & Risks</div>
+            </div>
+            <div class="step-line" id="line-3"></div>
+            <div class="step-node" id="step-writer">
+              <div class="step-circle">4</div>
+              <div class="step-label">Writer</div>
+              <div class="step-sub">Report Authoring</div>
+            </div>
+            <div class="step-line" id="line-4"></div>
+            <div class="step-node" id="step-reviewer">
+              <div class="step-circle">5</div>
+              <div class="step-label">Reviewer</div>
+              <div class="step-sub">Audit & Scoring</div>
+            </div>
+            <div class="step-line" id="line-5"></div>
+            <div class="step-node" id="step-consolidate">
+              <div class="step-circle">6</div>
+              <div class="step-label">Orchestrator</div>
+              <div class="step-sub">Final Output</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2-col">
+          <!-- Real-Time Output Deliverable -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Final Deliverable / Generated Output</h3>
+              <div class="review-score-pill" id="monitorScorePill" style="display:none;">
+                Score: <span id="monitorScoreValue">--</span>/100
+              </div>
+            </div>
+            <div class="deliverable-content markdown-body" id="monitorDeliverable">
+              <div class="empty-state">
+                <div class="empty-icon">📝</div>
+                <h4>No Execution Active</h4>
+                <p class="text-muted">Select or run a workflow to watch agents collaborate in real time.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Event Traces -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Live Execution Traces</h3>
+              <span class="badge" id="monitorTraceCount">0 events</span>
+            </div>
+            <div class="traces-timeline" id="monitorTracesList">
+              <p class="text-muted text-center">No trace events recorded for selected run.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: AGENTS -->
+      <section class="tab-content" id="tab-agents">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Specialized Agent Registry</h2>
+            <p class="page-desc">Inspect agent roles, system prompts, schemas, and capabilities.</p>
+          </div>
+        </div>
+
+        <div class="agents-grid" id="agentsGridContainer">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+
+      <!-- TAB 5: TOOLS & MCP -->
+      <section class="tab-content" id="tab-tools">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Tool Registry & MCP Integration</h2>
+            <p class="page-desc">Inspect native tools, external Model Context Protocol adapters, and run live interactive tool executions.</p>
+          </div>
+        </div>
+
+        <div class="grid-2-col">
+          <!-- Tools List -->
+          <div>
+            <h3 class="section-subtitle">Registered Tools</h3>
+            <div class="tools-grid" id="toolsGridContainer">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- Interactive Tool Test Runner -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Tool Execution Sandbox</h3>
+            </div>
+            <form id="toolTestForm">
+              <div class="form-group">
+                <label for="testToolSelect">Target Tool</label>
+                <select id="testToolSelect" class="form-control" required>
+                  <option value="">Select a tool...</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="testToolParams">Input Parameters (JSON)</label>
+                <textarea id="testToolParams" rows="5" class="form-control font-mono" placeholder='{"expression": "round(100 * 0.74, 1)"}' required></textarea>
+                <small class="text-muted">Enter valid JSON parameters matching the selected tool's schema.</small>
+              </div>
+
+              <button type="submit" class="btn btn-primary" id="btnRunToolTest">
+                <span>▶ Run Tool</span>
+              </button>
+            </form>
+
+            <div class="tool-result-box" id="toolResultBox" style="display:none;">
+              <h4>Execution Output</h4>
+              <pre class="font-mono" id="toolResultJson"></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: APPROVALS -->
+      <section class="tab-content" id="tab-approvals">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Human-in-the-Loop Approvals</h2>
+            <p class="page-desc">Review pending workflow plans, sensitive tool operations, and audit decisions.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Pending Approval Queue</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Workflow</th>
+                  <th>Type</th>
+                  <th>Details</th>
+                  <th>Created</th>
+                  <th>Decision</th>
+                </tr>
+              </thead>
+              <tbody id="approvalsTableBody">
+                <tr><td colspan="6" class="text-center text-muted">No pending approvals in queue.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: HISTORY & TRACES -->
+      <section class="tab-content" id="tab-history">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Execution History & Audit Traces</h2>
+            <p class="page-desc">Comprehensive audit logs of all past multi-agent pipeline executions and step durations.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Execution Runs</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Execution ID</th>
+                  <th>Workflow ID</th>
+                  <th>Status</th>
+                  <th>Started</th>
+                  <th>Duration</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody">
+                <tr><td colspan="6" class="text-center text-muted">Loading execution history...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Modal Dialog: Traces & Details -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3 class="modal-title" id="modalTitle">Details</h3>
+          <button class="btn-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+          <!-- Dynamic modal body -->
+        </div>
+        <div class="modal-footer" id="modalFooter">
+          <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,14 @@
+# Cloud-Native Multi-Agent Orchestration Patterns
+
+## 1. State Persistence & Checkpointing
+Production agent architectures treat multi-step workflows as transactional state machines. Every transition must be captured in durable storage with millisecond-precision event traces.
+
+## 2. Dependency Management and Parallel Branches
+Subtasks with disjoint dependency sets should execute in parallel execution stages. Topological sorting guarantees that prerequisite inputs are fully materialized before dependent nodes activate.
+
+## 3. Resilience and Retry Strategies
+Transient model timeouts and network degradation are mitigated using exponential backoff policies with jitter. Idempotent agent nodes ensure that retrying a failed subtask does not produce duplicate side effects.
+
+## 4. Auditing and Full Observability
+Every agent invocation, tool call, parameter payload, execution duration, and error trace must be recorded in structured format. This enables retrospective analysis, compliance audits, and performance profiling.
+

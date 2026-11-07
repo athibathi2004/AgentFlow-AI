@@ -1,0 +1,45 @@
+services:
+  agentflow-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agentflow-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_NAME=AgentFlow AI
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+asyncpg://agentflow:agentflow_secret@postgres:5432/agentflow_db
+      - LLM_PROVIDER=mock
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: agentflow-postgres
+    environment:
+      - POSTGRES_USER=agentflow
+      - POSTGRES_PASSWORD=agentflow_secret
+      - POSTGRES_DB=agentflow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agentflow -d agentflow_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+

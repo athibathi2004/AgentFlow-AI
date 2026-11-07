@@ -1,0 +1,21 @@
+[
+  {
+    "name": "Enterprise AI Trends & Architecture Analysis",
+    "description": "Synthesize industry trends on autonomous multi-agent orchestration and compile an executive report.",
+    "task": "Research enterprise AI trends, analyze agentic orchestration architectures, compute efficiency metrics, and prepare a technical deliverable report with quality review.",
+    "requires_approval": false
+  },
+  {
+    "name": "Cloud Security & Governance Review",
+    "description": "Examine cloud security baseline policies and compile a risk assessment with human approval gate.",
+    "task": "Audit cloud multi-tenant architecture policies, evaluate isolation mechanisms, quantify compliance gaps, and prepare a security posture review.",
+    "requires_approval": true
+  },
+  {
+    "name": "Model Context Protocol Tool Integration Strategy",
+    "description": "Investigate MCP adoption patterns and evaluate architectural advantages for distributed agent systems.",
+    "task": "Analyze Model Context Protocol (MCP) tool integration paradigms, calculate glue code reduction impact, and synthesize implementation recommendations.",
+    "requires_approval": false
+  }
+]
+

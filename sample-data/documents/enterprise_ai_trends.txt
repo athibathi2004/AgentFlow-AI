@@ -1,0 +1,19 @@
+# Enterprise AI & Autonomous Agent Architecture Trends 2025-2026
+
+## 1. Executive Landscape
+Enterprise generative AI strategies have pivoted from unconstrained conversational interfaces toward deterministic, multi-agent workflow systems. Single LLM calls are increasingly recognized as inadequate for complex analytical mandates due to context window saturation, non-deterministic reasoning drift, and lack of auditable state.
+
+## 2. The Multi-Agent Specialization Paradigm
+Rather than relying on a single generalist prompt, modern architectures employ specialized agents:
+- **Planner Agents**: Deconstruct unstructured goals into directed acyclic graphs (DAGs) with explicit inputs and expected outputs.
+- **Research Agents**: Query domain knowledge bases, vector search stores, and document repositories using strict tool calling schemas.
+- **Analyst Agents**: Execute deterministic calculations and statistical summaries via isolated, sandboxed math engines, completely precluding unrestricted code execution.
+- **Writer Agents**: Synthesize findings and quantitative analyses into coherent executive deliverables formatted in Markdown.
+- **Reviewer Agents**: Perform rule-based and rubric-guided quality audits, scoring outputs on completeness, factual fidelity, and safety before final delivery.
+
+## 3. Tool Standardization via Model Context Protocol (MCP)
+The Model Context Protocol (MCP) has emerged as an industry-standard communication layer. By decoupling tool definitions and execution from specific LLM vendors, MCP enables agents to securely discover tools, inspect JSON Schema definitions, and invoke remote services across stdio and Server-Sent Events (SSE) transports.
+
+## 4. Governance & Human-in-the-Loop (HITL) Checkpoints
+Critical operations require checkpoint gates where execution automatically pauses. Workflows persist their serialized state to transactional relational databases (PostgreSQL/SQLite) and resume only upon authorized reviewer approval.
+
